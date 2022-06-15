@@ -19,24 +19,31 @@ class Name(Field):
 
 
 class Record:
-    def __init__(self, name:Name, phone:Phone = None, new_phone:Phone = None):
+    def __init__(self, name:Name, phone:Phone = None):
         self.phones = []
         self.name = name
-        self.phone = phone
-        self.new_phone = new_phone
+        # self.phone = phone
         if phone:
             self.add_phone(phone)
-        
+
     def add_phone(self, phone:Phone):
         self.phones.append(phone)
-    
+
     def change_record_phone(self, phone:Phone, new_phone:Phone):
-        self.phones.remove(phone)
-        self.phones.append(new_phone)
-        #self.phones.remove(phone)
+        if phone.phone in [p.phone for p in self.phones]:
+            self.delete_record_phone(phone)
+            self.add_phone(new_phone)
+        # self.phones.remove(phone)
+        # self.phones.append(new_phone)
+        # #self.phones.remove(phone)
     
     def delete_record_phone(self, phone:Phone):
-        self.phones.remove(phone)
+        for i, p in enumerate(self.phones):
+            if phone.phone == p.phone:
+                self.phones.pop(i)
+    
+    def __repr__(self) -> str:
+        return f"{', '.join([p.phone for p in self.phones])}"
 
 
 class AdressBook(UserDict):
@@ -71,9 +78,11 @@ def add(*args):
 def change(*args):
     name = Name(args[0])
     record = phone_book.get(name.name)
-    phone = record.phones
-    #print (phone) 
-    new_phone = Phone(args[1])
+    # phone = record.phones вот это не нужно делать. Метод change_phone - это метод Record
+    # нужно передать вторым параметром, номер телефона, который меняем
+    #print (phone)
+    phone = Phone(args[1])
+    new_phone = Phone(args[2])
     #print(new_phone)
     record.change_record_phone(phone, new_phone)
     #name = Name(args[0])
@@ -110,13 +119,20 @@ def parse_command(user_input:str):
         for i in v:
             if user_input.lower().startswith(i.lower()):
                 return k, user_input[len(i):].strip().split(" ")
+    
+    
 def main():
     while True:
         user_input = input(">>>")
-        result, data = parse_command(user_input)
-        print(result(*data))
+        result = parse_command(user_input)
+        if not result:
+            print("Sorry, unknown command. Try another.")
+            continue
+        
+        print(result[0](*result[1]))
         print (phone_book)
-        if result is exit:
+        if result[0] is exit:
             break
+        
 if __name__ == "__main__":
     main()
