@@ -4,16 +4,16 @@ from datetime import datetime, timedelta
 class Field:
     pass
     def __init__(self, value):
-        self.__value = None
+        self._value = None
         self.value = value
     
     @property
     def value(self):
-        return self.__value
+        return self._value
     
     @value.setter
     def value(self, value):
-        self.__value = value
+        self._value = value
 
 class Phone(Field):
     def __init__(self, phone):
